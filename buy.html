@@ -57,7 +57,7 @@
   <button onclick="goHome()">🏠 หน้าหลัก</button>
 
   <script>
-    const scriptURL = 'https://script.google.com/macros/s/AKfycbydBLHp2AZhCuZX99_mtk3mxnemc2HdvD-YxmpAwITru2Wt66G0P3oVuWx6piayBfBM/exec';
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbwuNFxJkdgrramW00zUgnfe1Qm638_--DFZEAO1jGWOgP_SwMBOVOowuPIz3nH1QJZe/exec';
 
 
     async function searchIMEI() {
@@ -76,16 +76,23 @@
         const text = await res.text();
         console.log("📦 คำตอบจาก API:", text); 
 
-        if (text === "Not found") {
+        if (text === "Not found" || text.trim() === "") {
           resultBox.innerHTML = '<option value="">-- ไม่พบข้อมูล --</option>';
           return;
         }
 
-        const data = JSON.parse(text);
+        let data = JSON.parse(text);
+
+        // ตรวจสอบและแปลงข้อมูลให้เป็น Array เสมอ
+        if (!Array.isArray(data)) {
+          data = [data];
+        }
+
         resultBox.innerHTML = '<option value="">-- เลือก IMEI --</option>';
         data.forEach(item => {
           resultBox.innerHTML += `<option value='${JSON.stringify(item)}'>${item.IMEI}</option>`;
         });
+
       } catch (err) {
         console.error(err);
         resultBox.innerHTML = '<option value="">-- เกิดข้อผิดพลาด --</option>';
@@ -96,9 +103,9 @@
   const selected = document.getElementById("imeiResults").value;
   if (!selected) return;
 
-  const raw = JSON.parse(decodeURIComponent(selected));
-  const data = cleanKeys(raw); // ใช้ cleanKeys ถ้ายังมี space
-
+  const raw = JSON.parse(selected); // <== เอา decodeURIComponent ออก
+  const data = cleanKeys(raw); 
+  
   document.getElementById("brand").value = data["ยี่ห้อ"] || "";
   document.getElementById("model").value = data["รุ่น"] || "";
   document.getElementById("storage").value = data["ความจุ"] || "";
