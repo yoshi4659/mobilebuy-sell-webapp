@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>รับซื้อ</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 600px; margin: auto; }
+    input, select, button { width: 100%; padding: 10px; margin-top: 10px; font-size: 16px; }
+    label { margin-top: 15px; display: block; font-weight: bold; }
+    button { background-color: #2196F3; color: white; border: none; border-radius: 5px; }
+  </style>
+</head>
+<body>
+  <h2>📦 รับซื้อโทรศัพท์เข้าร้าน</h2>
+
+  <label>IMEI</label>
+  <input id="imei" required>
+
+  <label>ยี่ห้อ</label>
+  <input id="brand">
+
+  <label>รุ่น</label>
+  <input id="model">
+
+  <label>ความจุ</label>
+  <input id="storage">
+
+  <label>สภาพเครื่อง</label>
+  <select id="condition">
+    <option>>90%</option>
+    <option>80-90%</option>
+    <option>70-80%</option>
+    <option>50-70%</option>
+  </select>
+
+  <label>ตำหนิ</label>
+  <input id="defect">
+
+  <label>ราคาซื้อ (บาท)</label>
+  <input id="buyPrice" type="number">
+
+  <label>ผู้ขาย</label>
+  <input id="seller">
+
+  <button onclick="submitForm()">✅ บันทึกข้อมูล</button>
+
+  <!-- ปุ่มกลับหน้าหลัก -->
+  <button onclick="window.location.href='index.html'" style="background-color: gray; margin-top: 20px;">
+  🏠 หน้าหลัก
+  </button>
+
+
+  <p id="result"></p>
+  
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbydBLHp2AZhCuZX99_mtk3mxnemc2HdvD-YxmpAwITru2Wt66G0P3oVuWx6piayBfBM/exec';
+
+    async function submitForm() {
+      const data = {
+        imei: document.getElementById('imei').value,
+        brand: document.getElementById('brand').value,
+        model: document.getElementById('model').value,
+        storage: document.getElementById('storage').value,
+        condition: document.getElementById('condition').value,
+        defect: document.getElementById('defect').value,
+        buyPrice: document.getElementById('buyPrice').value,
+        seller: document.getElementById('seller').value,
+        sellPrice: "",    // ยังไม่ขายออก
+        buyer: "",        // ยังไม่มีผู้ซื้อ
+        note: ""
+      };
+
+      const res = await fetch(scriptURL, {
+        method: 'POST',
+        body: JSON.stringify(data)
+      });
+
+      if (res.ok) {
+        document.getElementById('result').innerText = "✅ บันทึกสำเร็จ";
+        document.querySelectorAll("input").forEach(el => el.value = "");
+      } else {
+        document.getElementById('result').innerText = "❌ เกิดข้อผิดพลาด";
+      }
+    }
+  </script>
+</body>
+</html>

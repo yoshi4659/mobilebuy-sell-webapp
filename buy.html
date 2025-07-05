@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <title>ขายโทรศัพท์มือสอง</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: sans-serif; padding: 20px; max-width: 500px; margin: auto; }
+    input, select, button { width: 100%; padding: 10px; margin: 5px 0; }
+    label { margin-top: 10px; display: block; }
+    button { background: #4CAF50; color: white; border: none; border-radius: 4px; }
+    button:hover { background: #45a049; }
+  </style>
+</head>
+<body>
+
+  <h2>📱 ขายโทรศัพท์มือสอง</h2>
+
+  <label>🔍 กรอกเลข IMEI บางส่วน:</label>
+  <input type="text" id="imeiInput" oninput="searchIMEI()" placeholder="พิมพ์เลขอย่างน้อย 3 หลัก">
+
+  <label>📋 เลือก IMEI ที่พบ:</label>
+  <select id="imeiResults" onchange="fillFormFromSelection()">
+    <option value="">-- กรุณากรอกและเลือก IMEI --</option>
+  </select>
+
+  <label>📌 ยี่ห้อ</label>
+  <input id="brand" readonly>
+
+  <label>📌 รุ่น</label>
+  <input id="model" readonly>
+
+  <label>📦 ความจุ</label>
+  <input id="storage" readonly>
+
+  <label>🧩 สภาพเครื่อง</label>
+  <input id="condition" readonly>
+
+  <label>⚠️ ตำหนิ</label>
+  <input id="defect" readonly>
+
+  <label>💰 ราคาซื้อ</label>
+  <input id="buyPrice" readonly>
+
+  <label>💸 ราคาขาย</label>
+  <input id="sellPrice">
+
+  <label>👤 ผู้ซื้อ</label>
+  <input id="buyer">
+
+  <label>📝 หมายเหตุ</label>
+  <input id="note">
+
+  <input type="hidden" id="rowIndex">
+
+  <button onclick="submitData()">💾 บันทึกข้อมูล</button>
+  <button onclick="goHome()">🏠 หน้าหลัก</button>
+
+  <script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbydBLHp2AZhCuZX99_mtk3mxnemc2HdvD-YxmpAwITru2Wt66G0P3oVuWx6piayBfBM/exec';
+
+
+    async function searchIMEI() {
+      const imeiText = document.getElementById("imeiInput").value.trim();
+      console.log("ค้นหา IMEI:", imeiText);
+      const resultBox = document.getElementById("imeiResults");
+      resultBox.innerHTML = '<option value="">-- กำลังค้นหา... --</option>';
+
+      if (imeiText.length < 3) {
+        resultBox.innerHTML = '<option value="">-- กรอกอย่างน้อย 3 ตัว --</option>';
+        return;
+      }
+       
+      try {
+        const res = await fetch(`${scriptURL}?imei=${imeiText}`);
+        const text = await res.text();
+        console.log("📦 คำตอบจาก API:", text); 
+
+        if (text === "Not found") {
+          resultBox.innerHTML = '<option value="">-- ไม่พบข้อมูล --</option>';
+          return;
+        }
+
+        const data = JSON.parse(text);
+        resultBox.innerHTML = '<option value="">-- เลือก IMEI --</option>';
+        data.forEach(item => {
+          resultBox.innerHTML += `<option value='${JSON.stringify(item)}'>${item.IMEI}</option>`;
+        });
+      } catch (err) {
+        console.error(err);
+        resultBox.innerHTML = '<option value="">-- เกิดข้อผิดพลาด --</option>';
+      }
+    }
+
+  function fillFormFromSelection() {
+  const selected = document.getElementById("imeiResults").value;
+  if (!selected) return;
+
+  const raw = JSON.parse(decodeURIComponent(selected));
+  const data = cleanKeys(raw); // ใช้ cleanKeys ถ้ายังมี space
+
+  document.getElementById("brand").value = data["ยี่ห้อ"] || "";
+  document.getElementById("model").value = data["รุ่น"] || "";
+  document.getElementById("storage").value = data["ความจุ"] || "";
+  document.getElementById("condition").value = data["สภาพเครื่อง"] || "";
+  document.getElementById("defect").value = data["ตำหนิ"] || "";
+  document.getElementById("buyPrice").value = data["ราคาซื้อ"] || "";
+  document.getElementById("rowIndex").value = data["rowIndex"];
+  document.getElementById("imeiInput").value = data["IMEI"];
+}
+function cleanKeys(obj) {
+  const cleaned = {};
+  for (const key in obj) {
+    cleaned[key.trim()] = obj[key];
+  }
+  return cleaned;
+}
+
+
+    async function submitData() {
+      const rowIndex = document.getElementById("rowIndex").value;
+      const imei = document.getElementById("imeiInput").value;
+      const brand = document.getElementById("brand").value;
+      const model = document.getElementById("model").value;
+      const storage = document.getElementById("storage").value;
+      const condition = document.getElementById("condition").value;
+      const defect = document.getElementById("defect").value;
+      const buyPrice = document.getElementById("buyPrice").value;
+      const sellPrice = document.getElementById("sellPrice").value;
+      const buyer = document.getElementById("buyer").value;
+      const note = document.getElementById("note").value;
+      const sellDate = new Date().toLocaleString("th-TH");
+
+      if (!rowIndex || !sellPrice || !buyer) {
+        alert("❗ กรุณากรอกข้อมูลให้ครบก่อนบันทึก");
+        return;
+      }
+
+      if (parseFloat(sellPrice) < parseFloat(buyPrice)) {
+        alert("⚠️ ราคาขายต่ำกว่าราคาซื้อ! กรุณาตรวจสอบ");
+        return;
+      }
+
+      const payload = {
+        rowIndex,
+        imei,
+        brand,
+        model,
+        storage,
+        condition,
+        defect,
+        buyPrice,
+        sellPrice,
+        buyer,
+        note,
+        sellDate
+      };
+
+      try {
+        const res = await fetch(scriptURL, {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" }
+        });
+
+        const result = await res.text();
+        alert("✅ " + result);
+        window.location.reload();
+      } catch (err) {
+        alert("❌ บันทึกไม่สำเร็จ กรุณาลองใหม่");
+        console.error(err);
+      }
+    }
+
+    function goHome() {
+      window.location.href = "index.html";
+    }
+  </script>
+
+</body>
+</html>
