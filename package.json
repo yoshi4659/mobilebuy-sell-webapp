@@ -1,14 +1,15 @@
 {
   "name": "mobilebuy-sell-webapp",
   "version": "1.0.0",
-  "description": "Web app for buying and selling mobile phones",
+  "description": "Proxy Server สำหรับเชื่อม Google Apps Script API",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "author": "Your Name",
+  "author": "your-name",
   "license": "MIT",
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.18.2"
   }
 }
