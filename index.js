@@ -27,4 +27,9 @@ app.post('/proxy', async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on port ${PORT}`);
+  
 });
+app.get('/', (req, res) => {
+  res.send('✅ Proxy Server พร้อมใช้งานแล้ว! ใช้ POST เพื่อส่งข้อมูลไปยัง Google Sheet');
+});
+
