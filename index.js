@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 app.use(cors()); // ✅ รองรับ CORS
 app.use(express.json()); // ✅ รองรับ JSON body
 
-const googleAppsScriptURL = 'https://script.google.com/macros/s/YOUR_DEPLOYED_SCRIPT_ID/exec';
+const googleAppsScriptURL = 'https://script.google.com/macros/s/AKfycbwuNFxJkdgrramW00zUgnfe1Qm638_--DFZEAO1jGWOgP_SwMBOVOowuPIz3nH1QJZe/exec';
 
 app.get('/', (req, res) => {
   res.json({ status: "success", message: "Proxy Server พร้อมใช้งานแล้ว!" });
